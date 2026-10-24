@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encurtador de Links Monetizável</title>
+    <style>
+        /* CSS RESET E VARIÁVEIS DE CORES SEGUIRAS (EVITA BLOQUEIO DE CONTRASTE) */
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --ad-bg: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* BANNER DE ANÚNCIO (ESPAÇO MONETIZÁVEL) */
+        .ad-banner {
+            width: 100%;
+            height: 90px;
+            background-color: var(--ad-bg);
+            border: 2px dashed var(--text-muted);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* SESSÃO DE RESULTADOS E MENSAGENS */
+        #message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        #message.error {
+            background-color: #fef2f2;
+            color: var(--error-color);
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        #message.success {
+            background-color: #ecfdf5;
+            color: var(--success-color);
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+
+        #result-box {
+            margin-top: 20px;
+            display: none;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-copy {
+            width: auto;
+            padding: 0 20px;
+            background-color: var(--success-color);
+        }
+
+        .btn-copy:hover {
+            background-color: #059669;
+        }
+
+        /* INTERFACE DA PÁGINA DE MONETIZAÇÃO / REDIRECIONAMENTO */
+        #monetization-page {
+            display: none;
+            text-align: center;
+        }
+
+        .timer-box {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        /* OCULTAR E EXIBIR TELAS */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>LinkShortener Pro</h1>
+        <p>Encurte seus links com opção de personalização</p>
+    </header>
+
+    <!-- TELA 1: CRIADOR DE LINKS -->
+    <div class="container" id="shortener-page">
+        <!-- Espaço para Anúncio Superior -->
+        <div class="ad-banner">
+            <!-- Insira seu código de anúncio aqui (ex: Google AdSense) -->
+            <span>[Espaço Reservado para Anúncios - Topo]</span>
+        </div>
+
+        <form id="shorten-form">
+            <div class="form-group">
+                <label for="long-url">URL Original:</label>
+                <input type="url" id="long-url" placeholder="https://exemplo.com/seu-link-longo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="custom-alias">Personalizar Link (Opcional):</label>
+                <input type="text" id="custom-alias" placeholder="ex: meu-link-especial">
+                <small style="color: var(--text-muted); font-size: 0.8rem;">Apenas letras, números, hífens e underlines.</small>
+            </div>
+
+            <button type="submit" class="btn" id="btn-submit">Encurtar Link</button>
+        </form>
+
+        <div id="message"></div>
+
+        <div id="result-box">
+            <label>Seu Link Monetizado e Encurtado:</label>
+            <div class="result-input-group">
+                <input type="text" id="short-url-result" readonly>
+                <button class="btn btn-copy" onclick="copyToClipboard()">Copiar</button>
+            </div>
+        </div>
+
+        <!-- Espaço para Anúncio Inferior -->
+        <div class="ad-banner" style="margin-top: 25px; margin-bottom: 0;">
+            <span>[Espaço Reservado para Anúncios - Rodapé]</span>
+        </div>
+    </div>
+
+    <!-- TELA 2: PÁGINA INTERMEDIÁRIA DE MONETIZAÇÃO (Ativada via hash na URL) -->
+    <div class="container hidden" id="monetization-page">
+        <h2>Aguarde para acessar seu conteúdo</h2>
+        <p style="color: var(--text-muted); margin-top: 5px;">Seu link estará pronto em instantes.</p>
+
+        <!-- Anúncio Principal da Página Intermediária -->
+        <div class="ad-banner" style="height: 250px; margin-top: 20px;">
+            <span>[Espaço de Anúncio de Alto Rendimento - Banner 300x250 / AdSense]</span>
+        </div>
+
+        <div class="timer-box" id="timer-display">Aguarde 10 segundos...</div>
+
+        <button id="btn-redirect" class="btn" disabled onclick="redirectToDestination()">Aguarde o contador...</button>
+
+        <!-- Anúncio Secundário -->
+        <div class="ad-banner" style="margin-top: 20px; margin-bottom: 0;">
+            <span>[Espaço Reservado para Anúncios - Rodapé]</span>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('shorten-form');
+        const longUrlInput = document.getElementById('long-url');
+        const customAliasInput = document.getElementById('custom-alias');
+        const btnSubmit = document.getElementById('btn-submit');
+        const messageDiv = document.getElementById('message');
+        const resultBox = document.getElementById('result-box');
+        const shortUrlResult = document.getElementById('short-url-result');
+
+        // LÓGICA DE VERIFICAÇÃO DA ROTA (SABER SE O USUÁRIO ESTÁ CRIANDO OU ACESSANDO UM LINK)
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            
+            // Se houver um hash contendo a URL de destino codificada
+            if (hash.startsWith('#go=')) {
+                const encodedTarget = hash.replace('#go=', '');
+                try {
+                    const targetUrl = decodeURIComponent(encodedTarget);
+                    showMonetizationPage(targetUrl);
+                } catch (e) {
+                    showMessage('URL de destino inválida.', 'error');
+                }
+            }
+        });
+
+        // REQUISIÇÃO À API DA.GD / V.GD PARA ENCURTAR
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const longUrl = longUrlInput.value.trim();
+            const customAlias = customAliasInput.value.trim();
+
+            // Otimização para sanitização do Alias
+            const sanitizedAlias = customAlias.replace(/[^a-zA-Z0-9_-]/g, '');
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Processando...';
+            hideMessage();
+
+            try {
+                // Criação da URL Monetizável intermediária apontando para este próprio site
+                const currentBaseUrl = window.location.href.split('#')[0];
+                
+                // Construção dos parâmetros para a API da.gd / v.gd
+                let apiEndpoint = `https://v.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+                
+                // Note: Como a monetização funciona via página intermediária, 
+                // encurtamos a URL da nossa própria página com o destino no Hash (#go=)
+                const intermediateUrl = `${currentBaseUrl}#go=${encodeURIComponent(longUrl)}`;
+                
+                let targetApiUrl = `https://v.gd/create.php?format=json&url=${encodeURIComponent(intermediateUrl)}`;
+                
+                if (sanitizedAlias) {
+                    targetApiUrl += `&shorturl=${encodeURIComponent(sanitizedAlias)}`;
+                }
+
+                const response = await fetch(targetApiUrl);
+                const data = await response.json();
+
+                if (response.ok && data.shorturl) {
+                    shortUrlResult.value = data.shorturl;
+                    resultBox.style.display = 'block';
+                    showMessage('Link encurtado com sucesso!', 'success');
+                } else if (data.errormessage) {
+                    showMessage(`Erro da API: ${data.errormessage}`, 'error');
+                } else {
+                    showMessage('Não foi possível encurtar o link. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                showMessage('Erro ao se conectar à API. Verifique sua conexão.', 'error');
+                console.error(error);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = 'Encurtar Link';
+            }
+        });
+
+        // PÁGINA INTERMEDIÁRIA (MONETIZAÇÃO COM TIMER)
+        let finalDestination = '';
+
+        function showMonetizationPage(destination) {
+            finalDestination = destination;
+            document.getElementById('shortener-page').classList.add('hidden');
+            document.getElementById('monetization-page').classList.remove('hidden');
+
+            let timeLeft = 10; // Tempo em segundos para exibição dos anúncios
+            const timerDisplay = document.getElementById('timer-display');
+            const btnRedirect = document.getElementById('btn-redirect');
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    timerDisplay.innerText = `Aguarde ${timeLeft} segundos...`;
+                } else {
+                    clearInterval(countdown);
+                    timerDisplay.innerText = 'Seu link está pronto!';
+                    btnRedirect.innerText = 'Acessar Link de Destino';
+                    btnRedirect.disabled = false;
+                    btnRedirect.style.backgroundColor = 'var(--success-color)';
+                }
+            }, 1000);
+        }
+
+        function redirectToDestination() {
+            if (finalDestination) {
+                window.location.href = finalDestination;
+            }
+        }
+
+        // FUNÇÕES AUXILIARES
+        function copyToClipboard() {
+            shortUrlResult.select();
+            document.execCommand('copy');
+            alert('Link copiado para a área de transferência!');
+        }
+
+        function showMessage(text, type) {
+            messageDiv.innerText = text;
+            messageDiv.className = type;
+        }
+
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+            messageDiv.className = '';
+        }
+    </script>
+</body>
+</html>
